@@ -1,4 +1,4 @@
-## Copyright 2007 Six Apart, Ltd. See accompanying LICENSE file.
+## Copyright 2007 Six Apart, Ltd. See accompanying Linkblog.LICENSE file.
 
 package MT::Plugin::Linkblog;
 use strict;
@@ -15,10 +15,12 @@ use constant CONFIG_TEMPLATE => <<'TMPL';
 </mtapp:setting>
 TMPL
 
+our $VERSION = '1.2';
+
 my $instance = __PACKAGE__->new(
     key         => 'linkblog',
-    name        => 'Link Blog',
-    version     => '1.2',
+    name        => 'Linkblog',
+    version     => $VERSION,
     author_name => 'Mark Paschal',
     author_link => 'http://markpasc.org/mark/',
     description => q(Customizes a blog for link blogging.),
