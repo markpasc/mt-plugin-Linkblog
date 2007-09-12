@@ -15,18 +15,19 @@ use constant CONFIG_TEMPLATE => <<'TMPL';
 </mtapp:setting>
 TMPL
 
-our $VERSION = '1.2';
+our $VERSION = '1.3';
 
 my $instance = __PACKAGE__->new(
-    key         => 'linkblog',
-    name        => 'Linkblog',
-    version     => $VERSION,
-    author_name => 'Mark Paschal',
-    author_link => 'http://markpasc.org/mark/',
-    description => q(Customizes a blog for link blogging.),
-    settings    => MT::PluginSettings->new([
-        ['linkblog', { Default => 0, Scope => 'blog' }],
-    ]),
+    key            => 'linkblog',
+    name           => 'Linkblog',
+    version        => $VERSION,
+    schema_version => 1,
+    author_name    => 'Mark Paschal',
+    author_link    => 'http://markpasc.org/mark/',
+    description    => q(Customizes a blog for link blogging.),
+    settings       => MT::PluginSettings->new(
+        [ [ 'linkblog', { Default => 0, Scope => 'blog' } ], ]
+    ),
     blog_config_template => CONFIG_TEMPLATE(),
 );
 MT->add_plugin($instance);
@@ -34,7 +35,6 @@ MT->add_plugin($instance);
 sub init_registry {
     my $plugin = shift;
     $plugin->registry({
-        schema_version => 1,
         object_types => {
             'linkbloglink' => 'Linkblog::Link',
         },
