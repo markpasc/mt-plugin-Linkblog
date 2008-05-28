@@ -15,13 +15,13 @@ use constant CONFIG_TEMPLATE => <<'TMPL';
 </mtapp:setting>
 TMPL
 
-our $VERSION = '1.3';
+our $VERSION = '1.4';
 
 my $instance = __PACKAGE__->new(
     key            => 'linkblog',
     name           => 'Linkblog',
     version        => $VERSION,
-    schema_version => 1,
+    schema_version => 2,
     author_name    => 'Mark Paschal',
     author_link    => 'http://markpasc.org/mark/',
     description    => q(Customizes a blog for link blogging.),
@@ -165,7 +165,8 @@ sub add_url_field {
     $urlset->innerHTML(<<'EOF');
         <mtapp:setting
             id="url"
-            label="<__trans phrase="Link">">
+            label="<__trans phrase="Link">"
+            label_class="top-label">
             <div class="textarea-wrapper">
                 <input name="url" id="url" class="full-width" tabindex="6" value="<mt:var name="url" escape="html">" autocomplete="off" />
             </div>
