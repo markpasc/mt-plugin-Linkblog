@@ -1,0 +1,35 @@
+id:   linkblog
+key:  linkblog
+name: Linkblog
+version: 1.4
+schema_version: 2
+author_name: Mark Paschal
+author_link: http://markpasc.org/mark/
+description: Customizes a blog for link blogging.
+
+blog_config_template: >
+    <mtapp:setting
+        id="linkblog"
+        label="<__trans phrase="Link blog">"
+        hint="<__trans phrase="If selected, the Link field will be available when editing entries on this blog.">"
+        show_hint="1">
+        <label>
+            <input type="checkbox" name="linkblog" id="linkblog" value="1"<mt:if name="linkblog"> checked="checked"</mt:if> />
+            Enable link blogging
+        </label>
+    </mtapp:setting>
+settings:
+    linkblog:
+        Default: 0
+        Scope: blog
+
+object_types:
+    linkbloglink: Linkblog::Link
+callbacks:
+    MT::App::CMS::template_param.edit_entry: $linkblog::Linkblog::enable_linkblogging
+    MT::App::CMS::cms_post_save.entry: $linkblog::Linkblog::save_link_to_entry
+
+tags:
+    function:
+        LinkblogUrl: $linkblog::Linkblog::linkblog_url
+

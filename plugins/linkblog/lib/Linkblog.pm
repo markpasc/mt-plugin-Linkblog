@@ -1,60 +1,11 @@
 ## Copyright 2007 Six Apart, Ltd. See accompanying Linkblog.LICENSE file.
 
-package MT::Plugin::Linkblog;
+package Linkblog;
 use strict;
 
-use base qw( MT::Plugin );
-
-use constant CONFIG_TEMPLATE => <<'TMPL';
-<mtapp:setting
-    id="linkblog"
-    label="<__trans phrase="Link blog">"
-    hint="<__trans phrase="If selected, the Link field will be available when editing entries on this blog.">"
-    show_hint="1">
-    <label><input type="checkbox" name="linkblog" id="linkblog" value="1"<mt:if name="linkblog"> checked="checked"</mt:if> /> Enable link blogging</label>
-</mtapp:setting>
-TMPL
-
-our $VERSION = '1.4';
-
-my $instance = __PACKAGE__->new(
-    key            => 'linkblog',
-    name           => 'Linkblog',
-    version        => $VERSION,
-    schema_version => 2,
-    author_name    => 'Mark Paschal',
-    author_link    => 'http://markpasc.org/mark/',
-    description    => q(Customizes a blog for link blogging.),
-    settings       => MT::PluginSettings->new(
-        [ [ 'linkblog', { Default => 0, Scope => 'blog' } ], ]
-    ),
-    blog_config_template => CONFIG_TEMPLATE(),
-);
-MT->add_plugin($instance);
-
-sub init_registry {
-    my $plugin = shift;
-    $plugin->registry({
-        object_types => {
-            'linkbloglink' => 'Linkblog::Link',
-        },
-        callbacks => {
-            'MT::App::CMS::template_param.edit_entry' =>
-                sub { $plugin->enable_linkblogging(@_) },
-            'MT::App::CMS::cms_post_save.entry' =>
-                sub { $plugin->save_link_to_entry(@_) },
-        },
-        tags => {
-            function => {
-                'LinkblogUrl' => sub { $plugin->linkblog_url(@_) },
-            },
-        },
-    });
-}
-
 sub blog_is_linkblog {
-    my $plugin = shift;
-    my ($blog) = @_;
+    my $class = shift;
+    my ($plugin, $blog) = @_;
 
     my $blog_id = ref $blog ? $blog->id : $blog;
     return $plugin->get_config_value('linkblog', "blog:$blog_id")
@@ -62,11 +13,11 @@ sub blog_is_linkblog {
 }
 
 sub save_link_to_entry {
-    my $plugin = shift;
+    my $plugin = MT->component('linkblog');
     my ($cb, $app, $obj, $original) = @_;
 
     return if !$obj->id;
-    return if !$plugin->blog_is_linkblog($obj->blog_id);
+    return if !Linkblog->blog_is_linkblog($plugin, $obj->blog_id);
 
     my $url = $app->{query}->param('url');
     return if !$url;
@@ -83,21 +34,21 @@ sub save_link_to_entry {
 }
 
 sub enable_linkblogging {
-    my $plugin = shift;
+    my $plugin = MT->component('linkblog');
     my ($cb, $app, $param, $tmpl) = @_;
 
-    return if !$plugin->blog_is_linkblog($param->{blog_id});
+    return if !Linkblog->blog_is_linkblog($plugin, $param->{blog_id});
 
-    $plugin->add_url_field(@_);
-    $plugin->add_entry_url(@_);
-    $plugin->fill_fields_from_bookmarklet(@_);
+    Linkblog->add_url_field($plugin, @_);
+    Linkblog->add_entry_url($plugin, @_);
+    Linkblog->fill_fields_from_bookmarklet($plugin, @_);
 
     return;
 }
 
 sub fill_fields_from_bookmarklet {
-    my $plugin = shift;
-    my ($cb, $app, $param, $tmpl) = @_;
+    my $class = shift;
+    my ($plugin, $cb, $app, $param, $tmpl) = @_;
 
     return if $param->{id};  # only for new entries
 
@@ -134,8 +85,8 @@ sub fill_fields_from_bookmarklet {
 }
 
 sub add_entry_url {
-    my $plugin = shift;
-    my ($cb, $app, $param, $tmpl) = @_;
+    my $class = shift;
+    my ($plugin, $cb, $app, $param, $tmpl) = @_;
 
     my $entry_id = $param->{id};
     return if !$entry_id;
@@ -154,8 +105,8 @@ sub add_entry_url {
 }
 
 sub add_url_field {
-    my $plugin = shift;
-    my ($cb, $app, $param, $tmpl) = @_;
+    my $class = shift;
+    my ($plugin, $cb, $app, $param, $tmpl) = @_;
 
     my $tags = $tmpl->getElementById('tags')
         or die "No metad? wah\n";
@@ -181,7 +132,7 @@ EOF
 }
 
 sub linkblog_url {
-    my $plugin = shift;
+    my $plugin = MT->component('linkblog');
     my ($ctx, $args, $cond) = @_;
 
     my $entry = $ctx->stash('entry')
