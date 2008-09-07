@@ -5,19 +5,19 @@ use strict;
 
 sub blog_is_linkblog {
     my $class = shift;
-    my ($plugin, $blog) = @_;
+    my ($blog) = @_;
 
     my $blog_id = ref $blog ? $blog->id : $blog;
+    my $plugin = MT->component('linkblog');
     return $plugin->get_config_value('linkblog', "blog:$blog_id")
         ? 1 : 0;
 }
 
 sub save_link_to_entry {
-    my $plugin = MT->component('linkblog');
     my ($cb, $app, $obj, $original) = @_;
 
     return if !$obj->id;
-    return if !Linkblog->blog_is_linkblog($plugin, $obj->blog_id);
+    return if !Linkblog->blog_is_linkblog($obj->blog_id);
 
     my $url = $app->{query}->param('url');
     return if !$url;
@@ -34,11 +34,11 @@ sub save_link_to_entry {
 }
 
 sub enable_linkblogging {
-    my $plugin = MT->component('linkblog');
     my ($cb, $app, $param, $tmpl) = @_;
 
-    return if !Linkblog->blog_is_linkblog($plugin, $param->{blog_id});
+    return if !Linkblog->blog_is_linkblog($param->{blog_id});
 
+    my $plugin = MT->component('linkblog');
     Linkblog->add_url_field($plugin, @_);
     Linkblog->add_entry_url($plugin, @_);
     Linkblog->fill_fields_from_bookmarklet($plugin, @_);
@@ -145,6 +145,12 @@ sub linkblog_url {
     return $link->url || '';
 }
 
+sub blog_if_linkblog {
+    my ($ctx, $args) = @_;
+    my $blog = $ctx->stash('blog')
+        or return $ctx->_no_blog_error($args);
+    return Linkblog->blog_is_linkblog($blog) ? 1 : 0;
+}
 
 1;
 

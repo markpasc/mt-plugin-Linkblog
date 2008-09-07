@@ -1,7 +1,7 @@
 id:   linkblog
 key:  linkblog
 name: Linkblog
-version: 1.4
+version: 1.5
 schema_version: 2
 author_name: Mark Paschal
 author_link: http://markpasc.org/mark/
@@ -32,4 +32,6 @@ callbacks:
 tags:
     function:
         LinkblogUrl: $linkblog::Linkblog::linkblog_url
+    block:
+        BlogIfLinkblog?: $linkblog::Linkblog::blog_if_linkblog
 
